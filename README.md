@@ -11,7 +11,7 @@ I like to collect transforming robot toys from the series Macross and Mospeada. 
 - Prints in terminal a notification of a new announcement of a Macross or Mospeada product.
 - Appends to Listings.txt. date, time, and listing link.
 
-![System diagram](docs/CS 19300 Final Project System Diagram.jpg)
+![System diagram](docs/CS-19300-Final-Project-System-Diagram.jpg)
 
 ## Tech Stack
 - **Language:** Java
