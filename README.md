@@ -1,5 +1,5 @@
 # CS-19300-Final-Project
-This project is a program that keeps track of new Macross and Mospeada toy announcements on select websites daily and notifies me of a new announcement and provide me a link to the product listing.
+This project is a program that keeps track of new Macross and Mospeada toy announcements on select websites daily and notifies me of a new announcement and provides me a link to the product listing if one comes up.
 
 ## Problem
 I like to collect transforming robot toys from the series Macross and Mospeada. However, keeping track of upcoming releases is exhausting, as I constantly have to remember to google updates every so often. I seek to find a way of getting these updates delivered to me.
