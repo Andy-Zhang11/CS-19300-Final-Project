@@ -1,6 +1,6 @@
-import java.net.http.*;
-import java.net.URI;
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.*;
 
 public class ToyAnnouncementsNotifierTests {
   public void main() {
@@ -14,17 +14,15 @@ public class ToyAnnouncementsNotifierTests {
       HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
       System.out.println(response.body());
 
-      HttpClient client = HttpClient.newHttpClient();
-      HttpRequest request = HttpRequest.newBuilder()
+      HttpClient client2 = HttpClient.newHttpClient();
+      HttpRequest request2 = HttpRequest.newBuilder()
         .uri(URI.create("https://www.takaratomy.co.jp/products/tsparkofficial/"))
         .GET()
         .build();
-      HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-      System.out.println(response.body());
+      HttpResponse<String> response2 = client2.send(request2, HttpResponse.BodyHandlers.ofString());
+      System.out.println(response2.body());
 
-    } catch (IOException e) {
-      e.getStackTrace();
-    } catch (InterruptedException n) {
+    } catch (IOException | InterruptedException e) {
       e.getStackTrace();
     }
   }
