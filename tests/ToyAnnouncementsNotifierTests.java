@@ -1,3 +1,5 @@
+import java.io.IOException;
+
 public class ToyAnnouncementsNotifierTest {
   public void main() {
     try {
