@@ -1,3 +1,5 @@
+import java.net.http.*;
+import java.net.URI;
 import java.io.IOException;
 
 public class ToyAnnouncementsNotifierTests {
