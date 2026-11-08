@@ -9,3 +9,15 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.FileNotFoundException;
+
+public class ToyAnnouncementsNotifier {
+  public void main() {
+    try (ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor() {
+      scheduler.scheduleAtFixedRate(() -> {
+        
+      }, 0, 1, TimeUnit.DAYS);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+  }
+} 
