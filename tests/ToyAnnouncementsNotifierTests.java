@@ -1,6 +1,6 @@
 import java.io.IOException;
 
-public class ToyAnnouncementsNotifierTest {
+public class ToyAnnouncementsNotifierTests {
   public void main() {
     try {
 
