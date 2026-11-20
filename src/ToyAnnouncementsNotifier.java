@@ -14,7 +14,7 @@ public class ToyAnnouncementsNotifier {
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
-          .uri(URI.create("https://tamashiiweb.com/topics/items/?wovn=en"))
+          .uri(URI.create("https://tamashiiweb.com/?wovn=en"))
           .GET()
           .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
