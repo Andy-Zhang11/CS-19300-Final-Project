@@ -19,12 +19,11 @@ public class ToyAnnouncementsNotifier {
           .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        HttpClient client2 = HttpClient.newHttpClient();
         HttpRequest request2 = HttpRequest.newBuilder()
           .uri(URI.create("https://www.takaratomy.co.jp/products/tsparkofficial/"))
           .GET()
           .build();
-        HttpResponse<String> response2 = client2.send(request2, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
 
       } catch (IOException | InterruptedException e) {
         e.getStackTrace();
