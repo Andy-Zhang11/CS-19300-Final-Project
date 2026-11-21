@@ -1,4 +1,6 @@
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.net.http.*;
 import java.time.Duration;
@@ -49,7 +51,12 @@ public class ToyAnnouncementsNotifierTests {
             String bandaiBrand = bandaiMatcher.group(3);
             for (String keyword : keywords) {
               if (bandaiBrand.toLowerCase().contains(keyword.toLowerCase())) {
-                System.out.println(bandaiMatcher.group(2));
+                System.out.println("NEW BANDAI PRODUCT LISTING!!!");
+                try (PrintWriter pw = new PrintWriter("docs/announcements.txt")) {
+                  pw.println(today.toString() + ": https://tamashiiweb.com" + bandaiMatcher.group(2));
+                } catch (FileNotFoundException e) {
+                  e.getStackTrace();
+                }
                 break;
               }
             }
@@ -73,7 +80,12 @@ public class ToyAnnouncementsNotifierTests {
             String takaraLink = takaraMatcher.group(2);
             for (String keyword : keywords) {
               if (takaraLink.toLowerCase().contains(keyword.toLowerCase())) {
-                System.out.println(takaraLink);
+                System.out.println("NEW TAKARA PRODUCT LISTING!!!");
+                try (PrintWriter pw = new PrintWriter("docs/announcements.txt")) {
+                  pw.println(today.toString() + ": https://www.takaratomy.co.jp/products/tsparkofficial/" + takaraLink);
+                } catch (FileNotFoundException e) {
+                  e.getStackTrace();
+                }
                 break;
               }
             }
