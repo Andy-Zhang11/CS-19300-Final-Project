@@ -1,7 +1,9 @@
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.*;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Executors;
@@ -13,11 +15,18 @@ import java.util.regex.Pattern;
 public class ToyAnnouncementsNotifier {
   public void main() {
     ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    LocalTime run = LocalTime.of(20, 0, 0);
+    long initialDelay = Duration.between(LocalTime.now(), run).getSeconds();
+
+    if (initialDelay < 0) {
+        initialDelay += TimeUnit.DAYS.toSeconds(1);
+    }
+
     scheduler.scheduleAtFixedRate(() -> {
 
       try {
         String[] keywords = {"S.H. Figurarts", "The Robot Spirits", "Metal Robot Spirits", "DX Chogokin", "Hi-Metal R", "Toyrise", "Legioss", "Adamas", "Synergenex"};
-        LocalDate today = LocalDate.now(ZoneId.of("Asia/Tokyo"));
+        LocalDate today = LocalDate.now(ZoneId.systemDefault());
         DateTimeFormatter formatterTakara = DateTimeFormatter.ofPattern("yyyy.MM.dd");
         DateTimeFormatter formatterBandai = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -75,7 +84,6 @@ public class ToyAnnouncementsNotifier {
         e.getStackTrace();
       }
         
-    }, 0, 1, TimeUnit.DAYS);
+    }, initialDelay, 1, TimeUnit.DAYS);
   }
-} 
-
+}
