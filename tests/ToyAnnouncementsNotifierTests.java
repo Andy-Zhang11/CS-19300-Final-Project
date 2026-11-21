@@ -1,28 +1,36 @@
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ToyAnnouncementsNotifierTests {
   public void main() {
-    try {
+    ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    scheduler.scheduleAtFixedRate(() -> {
 
-      HttpClient client = HttpClient.newHttpClient();
-      HttpRequest request = HttpRequest.newBuilder()
-        .uri(URI.create("https://tamashiiweb.com/?wovn=en"))
-        .GET()
-        .build();
-      HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-      System.out.println(response.body());
+      try {
 
-      HttpRequest request2 = HttpRequest.newBuilder()
-        .uri(URI.create("https://www.takaratomy.co.jp/products/tsparkofficial/"))
-        .GET()
-        .build();
-      HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
-      System.out.println(response2.body());
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+          .uri(URI.create("https://tamashiiweb.com/?wovn=en"))
+          .GET()
+          .build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
 
-    } catch (IOException | InterruptedException e) {
-      e.getStackTrace();
-    }
+        HttpRequest request2 = HttpRequest.newBuilder()
+          .uri(URI.create("https://www.takaratomy.co.jp/products/tsparkofficial/"))
+          .GET()
+          .build();
+        HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
+        System.out.println(response2.body());
+
+      } catch (IOException | InterruptedException e) {
+        e.getStackTrace();
+      }
+        
+    }, 0, 1, TimeUnit.DAYS);
   }
-}
+} 
