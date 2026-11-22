@@ -1,4 +1,6 @@
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -91,6 +93,38 @@ public class ToyAnnouncementsNotifier {
               }
             }
           }
+        }
+
+        HttpRequest request3 = HttpRequest.newBuilder()
+          .uri(URI.create("https://www.threezerohk.com/shop/category/collections-robotech-77"))
+          .GET()
+          .build();
+        HttpResponse<String> response3 = client.send(request3, HttpResponse.BodyHandlers.ofString());
+        Pattern threeZeroPattern = Pattern.compile("/shop/robotech-robo-dou-robotech-.*?\\d+\\?category=77&amp;order=create_date+desc",
+                                                Pattern.CASE_INSENSITIVE);
+        Matcher threeZeroMatcher = threeZeroPattern.matcher(response3.body());
+        try (BufferedReader br = new BufferedReader(new FileReader("docs/threezerohref.txt"))) {
+        PrintWriter pw1 = new PrintWriter(new FileWriter("docs/threezerohref.txt", true));
+        PrintWriter pw2 = new PrintWriter(new FileWriter("docs/announcements.txt", true));
+          while (threeZeroMatcher.find()) {
+            boolean broken = false;
+            String threeZeroLink = threeZeroMatcher.group(0);
+            String listedLink = br.readLine();
+            while (listedLink != null) {
+              if (threeZeroLink.toLowerCase().equals(listedLink.toLowerCase())) {
+                broken = true;
+                break;
+              }
+              listedLink = br.readLine();
+            }
+            if (broken == false) {
+              System.out.println("NEW THREEZERO PRODUCT LISTING!!!");
+              pw1.println(threeZeroLink);
+              pw2.println(today.toString() + ": " + URI.create("https://www.threezerohk.com").resolve(threeZeroLink).toString());
+            }
+          }
+        } catch (FileNotFoundException e) {
+          e.getStackTrace();
         }
 
       } catch (IOException | InterruptedException e) {
