@@ -30,33 +30,35 @@ public class ToyAnnouncementsNotifier {
     scheduler.scheduleAtFixedRate(() -> {
 
       try {
-        String[] keywords = {"S.H. Figurarts", "The Robot Spirits", "Metal Robot Spirits", "DX Chogokin", "Hi-Metal R", "Toyrise", "Legioss", "Adamas", "Synergenex"};
+        String[] keywords = {"S.H. Figurarts", "The Robot Spirits", "Metal Robot Spirits", "DX Chogokin", "Hi-Metal R", "Legioss", "Toyrise", "Adamas", "Synergenex"};
         LocalDate today = LocalDate.now(ZoneId.systemDefault());
         DateTimeFormatter formatterTakara = DateTimeFormatter.ofPattern("yyyy.MM.dd");
         DateTimeFormatter formatterBandai = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
-          .uri(URI.create("https://tamashiiweb.com/?wovn=en"))
+          .uri(URI.create("https://tamashiiweb.com/?wovn=en&sa=JAPAN"))
           .GET()
           .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        Pattern bandaiLinkandDate = Pattern.compile("(?is)<li\\b[^>]*class\\s*=\\s*[\"'][^\"']*kvSlide__item[^\"']*[\"'][^>]*>" +
-                                                    ".*?<a\\b[^>]*href\\s*=\\s*[\"']([^\"']+)[\"'][^>]*>" +
-                                                    ".*?<p\\b[^>]*class\\s*=\\s*[\"']kvSlide__brand[\"'][^>]*>(.*?)</p>" +
-                                                    ".*?<time\\b[^>]*datetime\\s*=\\s*[\"'](\\d{4}-\\d{2}-\\d{2})[\"'][^>]*>" +
-                                                    ".*?</li>",
+        Pattern bandaiLinkandDate = Pattern.compile("<li class=\"productList__item[^\\\"]*\">[\\s\\S]*?" +
+                                                    "<a\\s+href=\"([^\"]+)\"[\\s\\S]*?" +
+                                                    "<p class=\"productList__brand\">[\\s\\S]*?>([^<]+)</p>[\\s\\S]*?" +
+                                                    "<p class=\"productList__date\">[\\s\\S]*?" +
+                                                    "<time datetime=\"([^\"]+)\">[\\s\\S]*?</time>[\\s\\S]*?" +
+                                                    "<time datetime=\"([^\"]+)\">" +
+                                                    "[\\s\\S]*?</li>",
                                                     Pattern.CASE_INSENSITIVE);
         Matcher bandaiMatcher = bandaiLinkandDate.matcher(response.body());
         while (bandaiMatcher.find()) {
-          LocalDate bandaiDate = LocalDate.parse(bandaiMatcher.group(3), formatterBandai);
+          LocalDate bandaiDate = LocalDate.parse(bandaiMatcher.group(4), formatterBandai);
           if (bandaiDate.equals(today)) {
             String bandaiBrand = bandaiMatcher.group(2);
             for (String keyword : keywords) {
               if (bandaiBrand.toLowerCase().contains(keyword.toLowerCase())) {
                 System.out.println("NEW BANDAI PRODUCT LISTING!!!");
                 try (PrintWriter pw = new PrintWriter(new FileWriter("docs/announcements.txt", true))) {
-                  pw.println(today.toString() + ": " + URI.create("https://tamashiiweb.com/?wovn=en").resolve(bandaiMatcher.group(1)).toString());
+                  pw.println(today.toString() + ": " + URI.create("https://tamashiiweb.com/?wovn=en&sa=JAPAN").resolve(bandaiMatcher.group(1)).toString());
                 } catch (FileNotFoundException e) {
                   e.getStackTrace();
                 }
@@ -104,8 +106,8 @@ public class ToyAnnouncementsNotifier {
                                                 Pattern.CASE_INSENSITIVE);
         Matcher threeZeroMatcher = threeZeroPattern.matcher(response3.body());
         try (BufferedReader br = new BufferedReader(new FileReader("docs/threezerohref.txt"))) {
-        PrintWriter pw1 = new PrintWriter(new FileWriter("docs/threezerohref.txt", true));
-        PrintWriter pw2 = new PrintWriter(new FileWriter("docs/announcements.txt", true));
+          PrintWriter pw1 = new PrintWriter(new FileWriter("docs/threezerohref.txt", true));
+          PrintWriter pw2 = new PrintWriter(new FileWriter("docs/announcements.txt", true));
           while (threeZeroMatcher.find()) {
             boolean broken = false;
             String threeZeroLink = threeZeroMatcher.group(0);
@@ -120,7 +122,7 @@ public class ToyAnnouncementsNotifier {
             if (broken == false) {
               System.out.println("NEW THREEZERO PRODUCT LISTING!!!");
               pw1.println(threeZeroLink);
-              pw2.println(today.toString() + ": " + URI.create("https://www.threezerohk.com").resolve(threeZeroLink).toString());
+              pw2.println(today.toString() + ": " + URI.create("https://www.threezerohk.com/shop/category/collections-robotech-77").resolve(threeZeroLink).toString());
             }
           }
         } catch (FileNotFoundException e) {
