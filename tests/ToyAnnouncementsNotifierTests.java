@@ -1,4 +1,5 @@
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
@@ -40,20 +41,20 @@ public class ToyAnnouncementsNotifierTests {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         Pattern bandaiLinkandDate = Pattern.compile("(?is)<li\\b[^>]*class\\s*=\\s*[\"'][^\"']*kvSlide__item[^\"']*[\"'][^>]*>" +
                                                     ".*?<a\\b[^>]*href\\s*=\\s*[\"']([^\"']+)[\"'][^>]*>" +
-                                                    ".*?<p\\b[^>]*class\\s*=\\s*[\"']kvSlide__brand[\"'][^>]*>" +
-                                                    "(?is)<time\\b[^>]*datetime\\s*=\\s*[\"'](\\d{4}-\\d{2}-\\d{2})[\"'][^>]*>" +
-                                                    "(?:(?!</li>).)*?</li>",
+                                                    ".*?<p\\b[^>]*class\\s*=\\s*[\"']kvSlide__brand[\"'][^>]*>(.*?)</p>" +
+                                                    ".*?<time\\b[^>]*datetime\\s*=\\s*[\"'](\\d{4}-\\d{2}-\\d{2})[\"'][^>]*>" +
+                                                    ".*?</li>",
                                                     Pattern.CASE_INSENSITIVE);
         Matcher bandaiMatcher = bandaiLinkandDate.matcher(response.body());
         while (bandaiMatcher.find()) {
           LocalDate bandaiDate = LocalDate.parse(bandaiMatcher.group(4), formatterBandai);
           if (bandaiDate.equals(today)) {
-            String bandaiBrand = bandaiMatcher.group(3);
+            String bandaiBrand = bandaiMatcher.group(2);
             for (String keyword : keywords) {
               if (bandaiBrand.toLowerCase().contains(keyword.toLowerCase())) {
                 System.out.println("NEW BANDAI PRODUCT LISTING!!!");
-                try (PrintWriter pw = new PrintWriter("docs/announcements.txt")) {
-                  pw.println(today.toString() + ": https://tamashiiweb.com" + bandaiMatcher.group(2));
+                try (PrintWriter pw = new PrintWriter(new FileWriter("docs/announcements.txt", true))) {
+                  pw.println(today.toString() + ": " + URI.create("https://tamashiiweb.com/?wovn=en").resolve(bandaiMatcher.group(1)).toString());
                 } catch (FileNotFoundException e) {
                   e.getStackTrace();
                 }
@@ -68,21 +69,21 @@ public class ToyAnnouncementsNotifierTests {
           .GET()
           .build();
         HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
-        Pattern takaraLinkandDate = Pattern.compile("(?is)<a\\b[^>]*href\\s*=\\s*[\"']([^\"']+)[\"'][^>]*>" + 
-                                                    "\\s*<a\\s+href=\"([^\"]+)\"[^>]*>" +
-                                                    "<p\\s+class=\"date\">\\s*(\\d{4}\\.\\d{2}\\.\\d{2})\\s*</p>" +
-                                                    "(.*?)</a>",
+        Pattern takaraLinkandDate = Pattern.compile("(?is)<div\\b[^>]*class\\s*=\\s*[\"'][^\"']*\\bslide\\b[^\"']*[\"'][^>]*>" +
+                                                    "\\s*<a\\b[^>]*href\\s*=\\s*[\"']([^\"']+)[\"'][^>]*>" +
+                                                    "\\s*<p\\s+class\\s*=\\s*[\"']date[\"']\\s*>\\s*(\\d{4}\\.\\d{2}\\.\\d{2})\\s*</p>" +
+                                                    ".*?</a>",
                                                     Pattern.CASE_INSENSITIVE);
         Matcher takaraMatcher = takaraLinkandDate.matcher(response2.body());
         while (takaraMatcher.find()) {
-          LocalDate takaraDate = LocalDate.parse(takaraMatcher.group(3), formatterTakara);
+          LocalDate takaraDate = LocalDate.parse(takaraMatcher.group(2), formatterTakara);
           if (takaraDate.equals(today)) {
-            String takaraLink = takaraMatcher.group(2);
+            String takaraLink = takaraMatcher.group(1);
             for (String keyword : keywords) {
               if (takaraLink.toLowerCase().contains(keyword.toLowerCase())) {
                 System.out.println("NEW TAKARA PRODUCT LISTING!!!");
-                try (PrintWriter pw = new PrintWriter("docs/announcements.txt")) {
-                  pw.println(today.toString() + ": https://www.takaratomy.co.jp/products/tsparkofficial/" + takaraLink);
+                try (PrintWriter pw = new PrintWriter(new FileWriter("docs/announcements.txt", true))) {
+                  pw.println(today.toString() + ": " + URI.create("https://www.takaratomy.co.jp/products/tsparkofficial/").resolve(takaraLink).toString());
                 } catch (FileNotFoundException e) {
                   e.getStackTrace();
                 }
