@@ -47,7 +47,7 @@ public class ToyAnnouncementsNotifier {
                                                     Pattern.CASE_INSENSITIVE);
         Matcher bandaiMatcher = bandaiLinkandDate.matcher(response.body());
         while (bandaiMatcher.find()) {
-          LocalDate bandaiDate = LocalDate.parse(bandaiMatcher.group(4), formatterBandai);
+          LocalDate bandaiDate = LocalDate.parse(bandaiMatcher.group(3), formatterBandai);
           if (bandaiDate.equals(today)) {
             String bandaiBrand = bandaiMatcher.group(2);
             for (String keyword : keywords) {
