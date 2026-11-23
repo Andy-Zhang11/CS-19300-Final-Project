@@ -41,6 +41,10 @@ public class ToyAnnouncementsNotifier {
           .GET()
           .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        /* Second datetime (release date) in the pattern is included to distinguish between items just put up for
+         * preorder or items already released and prioritize the former.
+         * Example: Released Product (2026-11-20) Product on preorder (2026-11).
+         */
         Pattern bandaiLinkandDate = Pattern.compile("<li class=\"productList__item[^\\\"]*\">[\\s\\S]*?" +
                                                     "<a\\s+href=\"([^\"]+)\"[\\s\\S]*?" +
                                                     "<p class=\"productList__brand\">[\\s\\S]*?>([^<]+)</p>[\\s\\S]*?" +
@@ -97,6 +101,9 @@ public class ToyAnnouncementsNotifier {
           }
         }
 
+        /* Threezero's API has no publication date for any new product listings, thus requiring an alternate method keeping track of
+         * hyperlinks just added and hyperlinks already present on the site.
+         */
         HttpRequest request3 = HttpRequest.newBuilder()
           .uri(URI.create("https://www.threezerohk.com/shop/category/collections-robotech-77"))
           .GET()
@@ -105,15 +112,15 @@ public class ToyAnnouncementsNotifier {
         Pattern threeZeroPattern = Pattern.compile("/shop/robotech-robo-dou-robotech-.*?\\d+\\?category=77&amp;order=create_date+desc",
                                                 Pattern.CASE_INSENSITIVE);
         Matcher threeZeroMatcher = threeZeroPattern.matcher(response3.body());
-        try (BufferedReader br = new BufferedReader(new FileReader("docs/threezerohref.txt"))) {
-          PrintWriter pw1 = new PrintWriter(new FileWriter("docs/threezerohref.txt", true));
-          PrintWriter pw2 = new PrintWriter(new FileWriter("docs/announcements.txt", true));
-          while (threeZeroMatcher.find()) {
+        while (threeZeroMatcher.find()) {
+          try (BufferedReader br = new BufferedReader(new FileReader("docs/threezerohref.txt"))) {
+            PrintWriter pw1 = new PrintWriter(new FileWriter("docs/threezerohref.txt", true));
+            PrintWriter pw2 = new PrintWriter(new FileWriter("docs/announcements.txt", true));
             boolean broken = false;
             String threeZeroLink = threeZeroMatcher.group(0);
             String listedLink = br.readLine();
             while (listedLink != null) {
-              if (threeZeroLink.toLowerCase().equals(listedLink.toLowerCase())) {
+              if (threeZeroLink.equalsIgnoreCase(listedLink)) {
                 broken = true;
                 break;
               }
@@ -124,9 +131,9 @@ public class ToyAnnouncementsNotifier {
               pw1.println(threeZeroLink);
               pw2.println(today.toString() + ": " + URI.create("https://www.threezerohk.com/shop/category/collections-robotech-77").resolve(threeZeroLink).toString());
             }
+          } catch (FileNotFoundException e) {
+            e.getStackTrace();
           }
-        } catch (FileNotFoundException e) {
-          e.getStackTrace();
         }
 
       } catch (IOException | InterruptedException e) {
