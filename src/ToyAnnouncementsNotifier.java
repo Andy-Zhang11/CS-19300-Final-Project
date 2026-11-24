@@ -30,7 +30,7 @@ public class ToyAnnouncementsNotifier {
     scheduler.scheduleAtFixedRate(() -> {
 
       try {
-        String[] keywords = {"Origin of Valkyrie", "S.H. Figurarts", "The Robot Spirits", "Metal Robot Spirits", "DX Chogokin", "Hi-Metal R", "Legioss", "Toyrise", "Adamas", "Synergenex"};
+        String[] keywords = {"Origin of Valkyrie", "DX Chogokin", "Hi-Metal R", "Legioss", "Toyrise", "Adamas", "Synergenex"};
         LocalDate today = LocalDate.now(ZoneId.systemDefault());
         DateTimeFormatter formatterTakara = DateTimeFormatter.ofPattern("yyyy.MM.dd");
         DateTimeFormatter formatterBandai = DateTimeFormatter.ofPattern("yyyy-MM-dd");
