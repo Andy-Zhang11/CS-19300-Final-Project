@@ -20,15 +20,14 @@ import java.util.regex.Pattern;
 public class ToyAnnouncementsNotifier {
   public void main() {
     ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    LocalTime run = LocalTime.of(20, 0, 0);
-    long initialDelay = Duration.between(LocalTime.now(), run).getSeconds();
+    LocalTime run = LocalTime.of(20, 0, 0, 0);
+    long initialDelay = Duration.between(LocalTime.now(ZoneId.of("America/Indiana/Indianapolis")), run).toNanos();
 
     if (initialDelay < 0) {
-        initialDelay += TimeUnit.DAYS.toSeconds(1);
+        initialDelay += TimeUnit.DAYS.toNanos(1);
     }
 
     scheduler.scheduleAtFixedRate(() -> {
-
       try {
         String[] keywords = {"Origin of Valkyrie", "DX Chogokin", "Hi-Metal R", "Legioss", "Toyrise", "Adamas", "Synergenex"};
         LocalDate today = LocalDate.now(ZoneId.systemDefault());
@@ -55,13 +54,13 @@ public class ToyAnnouncementsNotifier {
                                                     Pattern.CASE_INSENSITIVE);
         Matcher bandaiMatcher = bandaiLinkandDate.matcher(response.body());
         while (bandaiMatcher.find()) {
-          LocalDate bandaiDate = LocalDate.parse(bandaiMatcher.group(4), formatterBandai);
+          LocalDate bandaiDate = LocalDate.parse(bandaiMatcher.group(3), formatterBandai);
           if (bandaiDate.equals(today)) {
             String bandaiBrand = bandaiMatcher.group(2);
             for (String keyword : keywords) {
               if (bandaiBrand.toLowerCase().contains(keyword.toLowerCase())) {
                 System.out.println("NEW BANDAI PRODUCT LISTING!!!");
-                try (PrintWriter pw = new PrintWriter(new FileWriter("docs/announcements.txt", true))) {
+                try (PrintWriter pw = new PrintWriter(new FileWriter("/workspaces/CS-19300-Final-Project/docs/announcements.txt", true))) {
                   pw.println(today.toString() + ": " + URI.create("https://tamashiiweb.com/?wovn=en&sa=JAPAN").resolve(bandaiMatcher.group(1)).toString());
                 } catch (FileNotFoundException e) {
                   e.getStackTrace();
@@ -90,7 +89,7 @@ public class ToyAnnouncementsNotifier {
             for (String keyword : keywords) {
               if (takaraLink.toLowerCase().contains(keyword.toLowerCase())) {
                 System.out.println("NEW TAKARA PRODUCT LISTING!!!");
-                try (PrintWriter pw = new PrintWriter(new FileWriter("docs/announcements.txt", true))) {
+                try (PrintWriter pw = new PrintWriter(new FileWriter("/workspaces/CS-19300-Final-Project/docs/announcements.txt", true))) {
                   pw.println(today.toString() + ": " + URI.create("https://www.takaratomy.co.jp/products/tsparkofficial/").resolve(takaraLink).toString());
                 } catch (FileNotFoundException e) {
                   e.getStackTrace();
@@ -109,15 +108,14 @@ public class ToyAnnouncementsNotifier {
           .GET()
           .build();
         HttpResponse<String> response3 = client.send(request3, HttpResponse.BodyHandlers.ofString());
-        Pattern threeZeroPattern = Pattern.compile("/shop/robotech-robo-dou-robotech-.*?\\d+\\?category=77&amp;order=create_date+desc",
-                                                Pattern.CASE_INSENSITIVE);
+        Pattern threeZeroPattern = Pattern.compile("href=\"([^\"]*/shop/robotech-robo-dou-robotech-[^\"]+)\"",
+                                                   Pattern.CASE_INSENSITIVE);
         Matcher threeZeroMatcher = threeZeroPattern.matcher(response3.body());
         while (threeZeroMatcher.find()) {
-          try (BufferedReader br = new BufferedReader(new FileReader("docs/threezerohref.txt"))) {
-            PrintWriter pw1 = new PrintWriter(new FileWriter("docs/threezerohref.txt", true));
-            PrintWriter pw2 = new PrintWriter(new FileWriter("docs/announcements.txt", true));
-            boolean broken = false;
-            String threeZeroLink = threeZeroMatcher.group(0);
+          boolean broken = false;
+          String threeZeroLink = threeZeroMatcher.group(1);
+
+          try (BufferedReader br = new BufferedReader(new FileReader("/workspaces/CS-19300-Final-Project/docs/threezerohref.txt"))) {
             String listedLink = br.readLine();
             while (listedLink != null) {
               if (threeZeroLink.equalsIgnoreCase(listedLink)) {
@@ -126,6 +124,12 @@ public class ToyAnnouncementsNotifier {
               }
               listedLink = br.readLine();
             }
+          } catch (FileNotFoundException e) {
+            e.getStackTrace();
+          }
+
+          try (PrintWriter pw1 = new PrintWriter(new FileWriter("/workspaces/CS-19300-Final-Project/docs/threezerohref.txt", true));
+               PrintWriter pw2 = new PrintWriter(new FileWriter("/workspaces/CS-19300-Final-Project/docs/announcements.txt", true))) {
             if (broken == false) {
               System.out.println("NEW THREEZERO PRODUCT LISTING!!!");
               pw1.println(threeZeroLink);
@@ -134,12 +138,13 @@ public class ToyAnnouncementsNotifier {
           } catch (FileNotFoundException e) {
             e.getStackTrace();
           }
+
         }
 
       } catch (IOException | InterruptedException e) {
         e.getStackTrace();
       }
         
-    }, initialDelay, 1, TimeUnit.DAYS);
+    }, 0, TimeUnit.DAYS.toNanos(1), TimeUnit.NANOSECONDS);
   }
 }
