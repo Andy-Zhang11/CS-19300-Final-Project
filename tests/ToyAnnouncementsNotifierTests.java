@@ -30,7 +30,7 @@ public class ToyAnnouncementsNotifierTests {
     scheduler.scheduleAtFixedRate(() -> {
       try {
         String[] keywords = {"Origin of Valkyrie", "DX Chogokin", "Hi-Metal R", "Legioss", "Toyrise", "Adamas", "Synergenex"};
-        LocalDate today = LocalDate.now(ZoneId.systemDefault());
+        LocalDate today = LocalDate.now(ZoneId.of("America/Indiana/Indianapolis"));
         DateTimeFormatter formatterTakara = DateTimeFormatter.ofPattern("yyyy.MM.dd");
         DateTimeFormatter formatterBandai = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -40,6 +40,7 @@ public class ToyAnnouncementsNotifierTests {
           .GET()
           .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        String responseMock = java.nio.file.Files.readString(java.nio.file.Path.of("/workspaces/CS-19300-Final-Project/docs/mockbandailisting.html"));
         /* Second datetime (release date) in the pattern is included to distinguish between items just put up for
          * preorder or items already released and prioritize the former.
          * Example: Released Product (2026-11-20) Product on preorder (2026-11).
@@ -53,6 +54,7 @@ public class ToyAnnouncementsNotifierTests {
                                                     "[\\s\\S]*?</li>",
                                                     Pattern.CASE_INSENSITIVE);
         Matcher bandaiMatcher = bandaiLinkandDate.matcher(response.body());
+        Matcher bandaiMatcherMock = bandaiLinkandDate.matcher(responseMock);
         while (bandaiMatcher.find()) {
           LocalDate bandaiDate = LocalDate.parse(bandaiMatcher.group(3), formatterBandai);
           if (bandaiDate.equals(today)) {
@@ -71,17 +73,37 @@ public class ToyAnnouncementsNotifierTests {
           }
         }
 
+        while (bandaiMatcherMock.find()) {
+          LocalDate bandaiDateMock = LocalDate.parse(bandaiMatcherMock.group(3), formatterBandai);
+          if (bandaiDateMock.equals(today)) {
+            String bandaiBrandMock = bandaiMatcherMock.group(2);
+            for (String keyword : keywords) {
+              if (bandaiBrandMock.toLowerCase().contains(keyword.toLowerCase())) {
+                System.out.println("NEW BANDAI PRODUCT LISTING!!!");
+                try (PrintWriter pw = new PrintWriter(new FileWriter("/workspaces/CS-19300-Final-Project/docs/announcements.txt", true))) {
+                  pw.println(today.toString() + ": " + URI.create("https://tamashiiweb.com/?wovn=en&sa=JAPAN").resolve(bandaiMatcherMock.group(1)).toString());
+                } catch (FileNotFoundException e) {
+                  e.getStackTrace();
+                }
+                break;
+              }
+            }
+          }
+        }
+
         HttpRequest request2 = HttpRequest.newBuilder()
           .uri(URI.create("https://www.takaratomy.co.jp/products/tsparkofficial/"))
           .GET()
           .build();
         HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
+        String responseMock2 = java.nio.file.Files.readString(java.nio.file.Path.of("/workspaces/CS-19300-Final-Project/docs/mocktakaralisting.html"));
         Pattern takaraLinkandDate = Pattern.compile("(?is)<div\\b[^>]*class\\s*=\\s*[\"'][^\"']*\\bslide\\b[^\"']*[\"'][^>]*>" +
                                                     "\\s*<a\\b[^>]*href\\s*=\\s*[\"']([^\"']+)[\"'][^>]*>" +
                                                     "\\s*<p\\s+class\\s*=\\s*[\"']date[\"']\\s*>\\s*(\\d{4}\\.\\d{2}\\.\\d{2})\\s*</p>" +
                                                     ".*?</a>",
                                                     Pattern.CASE_INSENSITIVE);
         Matcher takaraMatcher = takaraLinkandDate.matcher(response2.body());
+        Matcher takaraMatcherMock = takaraLinkandDate.matcher(responseMock2);
         while (takaraMatcher.find()) {
           LocalDate takaraDate = LocalDate.parse(takaraMatcher.group(2), formatterTakara);
           if (takaraDate.equals(today)) {
@@ -91,6 +113,24 @@ public class ToyAnnouncementsNotifierTests {
                 System.out.println("NEW TAKARA PRODUCT LISTING!!!");
                 try (PrintWriter pw = new PrintWriter(new FileWriter("/workspaces/CS-19300-Final-Project/docs/announcements.txt", true))) {
                   pw.println(today.toString() + ": " + URI.create("https://www.takaratomy.co.jp/products/tsparkofficial/").resolve(takaraLink).toString());
+                } catch (FileNotFoundException e) {
+                  e.getStackTrace();
+                }
+                break;
+              }
+            }
+          }
+        }
+
+        while (takaraMatcherMock.find()) {
+          LocalDate takaraDateMock = LocalDate.parse(takaraMatcherMock.group(2), formatterTakara);
+          if (takaraDateMock.equals(today)) {
+            String takaraLinkMock = takaraMatcherMock.group(1);
+            for (String keyword : keywords) {
+              if (takaraLinkMock.toLowerCase().contains(keyword.toLowerCase())) {
+                System.out.println("NEW TAKARA PRODUCT LISTING!!!");
+                try (PrintWriter pw = new PrintWriter(new FileWriter("/workspaces/CS-19300-Final-Project/docs/announcements.txt", true))) {
+                  pw.println(today.toString() + ": " + URI.create("https://www.takaratomy.co.jp/products/tsparkofficial/").resolve(takaraLinkMock).toString());
                 } catch (FileNotFoundException e) {
                   e.getStackTrace();
                 }
