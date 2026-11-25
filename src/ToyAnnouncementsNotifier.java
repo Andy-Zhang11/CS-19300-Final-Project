@@ -145,6 +145,6 @@ public class ToyAnnouncementsNotifier {
         e.getStackTrace();
       }
         
-    }, 0, TimeUnit.DAYS.toNanos(1), TimeUnit.NANOSECONDS);
+    }, initialDelay, TimeUnit.DAYS.toNanos(1), TimeUnit.NANOSECONDS);
   }
 }
