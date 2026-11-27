@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.net.http.*;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -18,7 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ToyAnnouncementsNotifier {
-  public void main() {
+  public static void main(String[] args) {
     ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     LocalTime run = LocalTime.of(20, 0, 0, 0);
     long initialDelay = Duration.between(LocalTime.now(ZoneId.of("America/Indiana/Indianapolis")), run).toNanos();
@@ -60,7 +61,7 @@ public class ToyAnnouncementsNotifier {
             for (String keyword : keywords) {
               if (bandaiBrand.toLowerCase().contains(keyword.toLowerCase())) {
                 System.out.println("NEW BANDAI PRODUCT LISTING!!!");
-                try (PrintWriter pw = new PrintWriter(new FileWriter("/workspaces/CS-19300-Final-Project/docs/announcements.txt", true))) {
+                try (PrintWriter pw = new PrintWriter(new FileWriter(Path.of("docs").resolve("announcements.txt").toFile(), true))) {
                   pw.println(today.toString() + ": " + URI.create("https://tamashiiweb.com/?wovn=en&sa=JAPAN").resolve(bandaiMatcher.group(1)).toString());
                 } catch (FileNotFoundException e) {
                   e.getStackTrace();
@@ -89,7 +90,7 @@ public class ToyAnnouncementsNotifier {
             for (String keyword : keywords) {
               if (takaraLink.toLowerCase().contains(keyword.toLowerCase())) {
                 System.out.println("NEW TAKARA PRODUCT LISTING!!!");
-                try (PrintWriter pw = new PrintWriter(new FileWriter("/workspaces/CS-19300-Final-Project/docs/announcements.txt", true))) {
+                try (PrintWriter pw = new PrintWriter(new FileWriter(Path.of("docs").resolve("announcements.txt").toFile(), true))) {
                   pw.println(today.toString() + ": " + URI.create("https://www.takaratomy.co.jp/products/tsparkofficial/").resolve(takaraLink).toString());
                 } catch (FileNotFoundException e) {
                   e.getStackTrace();
@@ -115,7 +116,7 @@ public class ToyAnnouncementsNotifier {
           boolean broken = false;
           String threeZeroLink = threeZeroMatcher.group(1);
 
-          try (BufferedReader br = new BufferedReader(new FileReader("/workspaces/CS-19300-Final-Project/docs/threezerohref.txt"))) {
+          try (BufferedReader br = new BufferedReader(new FileReader(Path.of("docs").resolve("threezerohref.txt").toFile()))) {
             String listedLink = br.readLine();
             while (listedLink != null) {
               if (threeZeroLink.equalsIgnoreCase(listedLink)) {
@@ -128,8 +129,8 @@ public class ToyAnnouncementsNotifier {
             e.getStackTrace();
           }
 
-          try (PrintWriter pw1 = new PrintWriter(new FileWriter("/workspaces/CS-19300-Final-Project/docs/threezerohref.txt", true));
-               PrintWriter pw2 = new PrintWriter(new FileWriter("/workspaces/CS-19300-Final-Project/docs/announcements.txt", true))) {
+          try (PrintWriter pw1 = new PrintWriter(new FileWriter(Path.of("docs").resolve("threezerohref.txt").toFile(), true));
+               PrintWriter pw2 = new PrintWriter(new FileWriter(Path.of("docs").resolve("announcements.txt").toFile(), true))) {
             if (broken == false) {
               System.out.println("NEW THREEZERO PRODUCT LISTING!!!");
               pw1.println(threeZeroLink);
