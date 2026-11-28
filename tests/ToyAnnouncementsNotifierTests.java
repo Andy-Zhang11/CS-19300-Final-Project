@@ -23,7 +23,7 @@ public class ToyAnnouncementsNotifierTests {
   public static void main(String[] args) {
     ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     LocalTime run = LocalTime.of(20, 0, 0, 0);
-    long initialDelay = Duration.between(LocalTime.now(ZoneId.of("America/Indiana/Indianapolis")), run).toNanos();
+    long initialDelay = Duration.between(LocalTime.now(ZoneId.systemDefault()), run).toNanos();
 
     if (initialDelay < 0) {
         initialDelay += TimeUnit.DAYS.toNanos(1);
@@ -32,7 +32,7 @@ public class ToyAnnouncementsNotifierTests {
     scheduler.scheduleAtFixedRate(() -> {
       try {
         String[] keywords = {"Origin of Valkyrie", "DX Chogokin", "Hi-Metal R", "Legioss", "Toyrise", "Adamas", "Synergenex"};
-        LocalDate today = LocalDate.now(ZoneId.of("America/Indiana/Indianapolis"));
+        LocalDate today = LocalDate.now(ZoneId.systemDefault());
         DateTimeFormatter formatterTakara = DateTimeFormatter.ofPattern("yyyy.MM.dd");
         DateTimeFormatter formatterBandai = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
