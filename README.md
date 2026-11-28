@@ -52,5 +52,8 @@ java -cp bin ToyAnnouncementsNotifier
 - [ ] Browse the official social media accounts of Macross and Robotech for any announcements.
 - [ ] Add more keywords for the software to go off of when browsing the webpages.
 
+## Video Walkthrough
+https://youtu.be/6CZRnQS0caI
+
 ## Author
 Andrew Zhang, https://github.com/Andy-Zhang11
